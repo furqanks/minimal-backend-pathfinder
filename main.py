@@ -2,8 +2,9 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-# Import database and models
+# Import database, models, and routers
 from . import models, database
+from .routers import auth
 
 # Create database tables
 models.Base.metadata.create_all(bind=database.engine)
@@ -28,6 +29,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(auth.router)
 
 @app.get("/")
 def read_root():

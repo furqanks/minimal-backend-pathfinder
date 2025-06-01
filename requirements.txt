@@ -4,3 +4,6 @@ email-validator
 pydantic[email]
 sqlalchemy
 python-dotenv
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
