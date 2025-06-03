@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Text, ARRAY
 from sqlalchemy.orm import relationship
 import datetime
 
@@ -31,6 +31,20 @@ class Document(Base):
     
     # Relationships
     owner = relationship("User", back_populates="documents")
+    analyses = relationship("DocumentAnalysis", back_populates="document")
+
+class DocumentAnalysis(Base):
+    __tablename__ = "document_analyses"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(Integer, ForeignKey("documents.id"))
+    summary = Column(Text)
+    key_points = Column(ARRAY(String))
+    sentiment = Column(String)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    
+    # Relationships
+    document = relationship("Document", back_populates="analyses")
 
 class Program(Base):
     __tablename__ = "programs"

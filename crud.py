@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 import models, schemas, security
 from fastapi import HTTPException, status
+import os
 
 def get_user(db: Session, user_id: int):
     """Get a user by ID."""
@@ -38,6 +39,11 @@ def create_user(db: Session, user: schemas.UserCreate):
     
     return db_user
 
+# Document CRUD operations
+def get_document(db: Session, document_id: int):
+    """Get a document by ID."""
+    return db.query(models.Document).filter(models.Document.id == document_id).first()
+
 def get_documents(db: Session, user_id: int, skip: int = 0, limit: int = 100):
     """Get documents for a user."""
     return db.query(models.Document).filter(
@@ -56,6 +62,34 @@ def create_document(db: Session, document: schemas.DocumentCreate, user_id: int,
     db.refresh(db_document)
     return db_document
 
+def delete_document(db: Session, document_id: int):
+    """Delete a document."""
+    db_document = get_document(db, document_id=document_id)
+    if db_document:
+        db.delete(db_document)
+        db.commit()
+    return db_document
+
+def create_document_analysis(db: Session, analysis: schemas.DocumentAnalysisCreate):
+    """Create a document analysis."""
+    db_analysis = models.DocumentAnalysis(
+        document_id=analysis.document_id,
+        summary=analysis.summary,
+        key_points=analysis.key_points,
+        sentiment=analysis.sentiment
+    )
+    db.add(db_analysis)
+    db.commit()
+    db.refresh(db_analysis)
+    return db_analysis
+
+def get_document_analysis(db: Session, document_id: int):
+    """Get analysis for a document."""
+    return db.query(models.DocumentAnalysis).filter(
+        models.DocumentAnalysis.document_id == document_id
+    ).first()
+
+# Program CRUD operations
 def get_programs(db: Session, user_id: int, skip: int = 0, limit: int = 100):
     """Get programs for a user."""
     return db.query(models.Program).filter(
@@ -73,6 +107,7 @@ def create_program(db: Session, program: schemas.ProgramCreate, user_id: int):
     db.refresh(db_program)
     return db_program
 
+# Email CRUD operations
 def get_emails(db: Session, user_id: int, skip: int = 0, limit: int = 100):
     """Get emails for a user."""
     return db.query(models.Email).filter(

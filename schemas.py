@@ -43,6 +43,23 @@ class Document(DocumentBase):
     class Config:
         orm_mode = True
 
+# Document Analysis schemas
+class DocumentAnalysisBase(BaseModel):
+    document_id: int
+    summary: str
+    key_points: List[str]
+    sentiment: str
+
+class DocumentAnalysisCreate(DocumentAnalysisBase):
+    pass
+
+class DocumentAnalysis(DocumentAnalysisBase):
+    id: int
+    created_at: datetime
+    
+    class Config:
+        orm_mode = True
+
 # Program schemas
 class ProgramBase(BaseModel):
     name: str
