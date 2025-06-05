@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 import models, schemas, security
 from fastapi import HTTPException, status
 import os
+import json
 
 def get_user(db: Session, user_id: int):
     """Get a user by ID."""
@@ -75,7 +76,8 @@ def create_document_analysis(db: Session, analysis: schemas.DocumentAnalysisCrea
     db_analysis = models.DocumentAnalysis(
         document_id=analysis.document_id,
         summary=analysis.summary,
-        key_points=analysis.key_points,
+        # Store key_points as JSON string
+        key_points=json.dumps(analysis.key_points),
         sentiment=analysis.sentiment
     )
     db.add(db_analysis)

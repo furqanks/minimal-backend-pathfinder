@@ -1,6 +1,7 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Text, ARRAY
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Text, JSON
 from sqlalchemy.orm import relationship
 import datetime
+import json
 
 from database import Base
 
@@ -39,12 +40,29 @@ class DocumentAnalysis(Base):
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(Integer, ForeignKey("documents.id"))
     summary = Column(Text)
-    key_points = Column(ARRAY(String))
+    # Changed from ARRAY(String) to Text to store JSON string for SQLite compatibility
+    key_points = Column(Text)  # Will store JSON string representation of list
     sentiment = Column(String)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     
     # Relationships
     document = relationship("Document", back_populates="analyses")
+    
+    # Helper methods for key_points JSON conversion
+    @property
+    def key_points_list(self):
+        """Convert stored JSON string to Python list"""
+        if self.key_points:
+            return json.loads(self.key_points)
+        return []
+    
+    @key_points_list.setter
+    def key_points_list(self, points_list):
+        """Convert Python list to JSON string for storage"""
+        if points_list is not None:
+            self.key_points = json.dumps(points_list)
+        else:
+            self.key_points = json.dumps([])
 
 class Program(Base):
     __tablename__ = "programs"
